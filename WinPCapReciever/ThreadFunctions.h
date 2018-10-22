@@ -105,19 +105,21 @@ inline void send_packets(const std::string local_ip, const int port_number,  std
 
 
 	//Read the PCAP packet captures into my FormattedPacket (and data) data structures
+	//std::vector<FormattedPacket> packets = read_packet(
+		//R"(C:\Users\DEMcKnight\source\repos\WinPcapSender\Files\Project1GradedInput.pcap)");
 	std::vector<FormattedPacket> packets = read_packet(
-		R"(C:\Users\DEMcKnight\source\repos\WinPcapSender\Files\Project1GradedInput.pcap)");
+		R"(C:\Users\DEMcKnight\source\repos\WPD2\WinPCapReciever\Packets\Project2Topo.pcap)");
 
 	//For each packet, send its contents over the UDP connection
 	for (FormattedPacket packet : packets)
 	{
 		//If the packet's source matches our own
-		//if (packet.ipHeader.source == local_ip)
+		if (FormattedPacket::hexadecimal_to_decimalip(packet.ipHeader.source) == local_ip)
 		{
 			//sockaddr_in information taken from https://beej.us/guide/bgnet/html/multi/sockaddr_inman.html
 			struct sockaddr_in server_info{};
 			server_info.sin_family = AF_INET;
-			server_info.sin_port = htons(443);
+			server_info.sin_port = htons(port_number);
 			server_info.sin_addr.s_addr = inet_addr("127.3.1.4");
 
 			control.lock();

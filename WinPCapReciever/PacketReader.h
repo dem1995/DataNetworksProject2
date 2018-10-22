@@ -11,6 +11,7 @@ inline std::vector<FormattedPacket> read_packet(std::string file)
 		std::vector<FormattedPacket> formattedHeaders;
 
 		//Error buffer
+		//char errbuff[PCAP_ERRBUF_SIZE];
 		char errbuff[PCAP_ERRBUF_SIZE];
 
 		//Open the pcap file, sticking error data into the error buffer
@@ -51,7 +52,7 @@ inline std::vector<FormattedPacket> read_packet(std::string file)
 				formatted.append(formattedDataBuffer);
 				packetData.emplace_back(data[i]);
 			}
-
+			
 			formattedHeaders.emplace_back(FormattedPacket(packetData));
 		}
 		return formattedHeaders;

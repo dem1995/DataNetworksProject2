@@ -193,21 +193,21 @@ public:
 			sprintf(formattedDataBuffer, "%.2x", data[i]);
 			hexData.append(formattedDataBuffer);
 		}
-
+		const int offset = 4;
 		ethernetHeader = { hexData.substr(0,12), hexData.substr(12, 12), hexData.substr(24, 4), hexData.size()/2 };
 		ipHeader = IPHeader();
 		ipHeader.ipVersion = hexData.substr(28, 1);
 		ipHeader.ipHeaderLength = hexData.substr(29, 1);
-		ipHeader.typeOfService = hexData.substr(30, 2);
-		ipHeader.totalLength = hexData.substr(32, 4);
-		ipHeader.identification = hexData.substr(36, 4);
-		ipHeader.flags = hexData.substr(40, 4);
-		ipHeader.ttl = hexData.substr(44, 2);
-		ipHeader.protocol = hexData.substr(46, 2);
-		ipHeader.checksum = hexData.substr(48, 4);
-		ipHeader.source = hexData.substr(52, 8);
-		ipHeader.destination = hexData.substr(60, 8);
-		udpHeader = { hexData.substr(68,4), hexData.substr(72,4), hexData.substr(76,4), hexData.substr(80,4) };
+		ipHeader.typeOfService = hexData.substr(30 + offset, 2);
+		ipHeader.totalLength = hexData.substr(32 + offset, 4);
+		ipHeader.identification = hexData.substr(36 + offset, 4);
+		ipHeader.flags = hexData.substr(40 + offset, 4);
+		ipHeader.ttl = hexData.substr(44 + offset, 2);
+		ipHeader.protocol = hexData.substr(46 + offset, 2);
+		ipHeader.checksum = hexData.substr(48 + offset, 4);
+		ipHeader.source = hexData.substr(52 + offset, 8);
+		ipHeader.destination = hexData.substr(60 + offset, 8);
+		udpHeader = { hexData.substr(68 + offset,4), hexData.substr(72 + offset,4), hexData.substr(76 + offset,4), hexData.substr(80 + offset,4) };
 	}
 
 	/// <summary>
@@ -221,20 +221,21 @@ public:
 		
 		data = HexToBytes(hexData);
 
+		const int offset = 4;
 		ethernetHeader = { hexData.substr(0,12), hexData.substr(12, 12), hexData.substr(24, 4), hexData.size()/2 };
 		ipHeader = IPHeader();
 		ipHeader.ipVersion = hexData.substr(28, 1);
 		ipHeader.ipHeaderLength = hexData.substr(29, 1);
-		ipHeader.typeOfService = hexData.substr(30, 2);
-		ipHeader.totalLength = hexData.substr(32, 4);
-		ipHeader.identification = hexData.substr(36, 4);
-		ipHeader.flags = hexData.substr(40, 4);
-		ipHeader.ttl = hexData.substr(44, 2);
-		ipHeader.protocol = hexData.substr(46, 2);
-		ipHeader.checksum = hexData.substr(48, 4);
-		ipHeader.source = hexData.substr(52, 8);
-		ipHeader.destination = hexData.substr(60, 8);
-		udpHeader = { hexData.substr(68,4), hexData.substr(72,4), hexData.substr(76,4), hexData.substr(80,4) };
+		ipHeader.typeOfService = hexData.substr(30 + offset, 2);
+		ipHeader.totalLength = hexData.substr(32 + offset, 4);
+		ipHeader.identification = hexData.substr(36 + offset, 4);
+		ipHeader.flags = hexData.substr(40 + offset, 4);
+		ipHeader.ttl = hexData.substr(44 + offset, 2);
+		ipHeader.protocol = hexData.substr(46 + offset, 2);
+		ipHeader.checksum = hexData.substr(48 + offset, 4);
+		ipHeader.source = hexData.substr(52 + offset, 8);
+		ipHeader.destination = hexData.substr(60 + offset, 8);
+		udpHeader = { hexData.substr(68 + offset,4), hexData.substr(72 + offset,4), hexData.substr(76 + offset,4), hexData.substr(80 + offset,4) };
 	}
 
 	/// <summary>
@@ -288,5 +289,20 @@ public:
 		os << std::endl;
 		return os;
 	}
+
+
+	static std::string hexadecimal_to_decimalip(std::string in)
+	{
+		const char* array_in = in.c_str();
+		char* out = (char*)malloc(sizeof(char) * 16);
+		unsigned int p, q, r, s;
+
+		if (sscanf(array_in, "%2x%2x%2x%2x", &p, &q, &r, &s) != 4)
+			return out;
+		sprintf(out, "%u.%u.%u.%u", p, q, r, s);
+		return out;
+	}
 };
+
+
 
