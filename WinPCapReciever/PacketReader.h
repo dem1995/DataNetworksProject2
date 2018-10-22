@@ -6,6 +6,12 @@
 #include <pcap.h>
 #include "FormattedPacket.h"
 
+/**
+ * \brief Reads in packets from a packet capture file and formats them into FormattedPackets.
+ * Returns a vector of the packets that were formatted.
+ * \param file The file location of the capture file.
+ * \return A vector of FormattedPackets formed from packet capture file at the provided location.
+ */
 inline std::vector<FormattedPacket> read_packet(std::string file)
 	{
 		std::vector<FormattedPacket> formattedHeaders;

@@ -5,67 +5,79 @@
 #include <winsock2.h>
 #include "FormattedPacket.h"
 #include "PacketReader.h"
+#include <chrono>
 #include <mutex>
 
-std::mutex control;
+
+static std::mutex control;
 
 /**
  * \brief Function to receive packets set to the provided IP Address
  * \param local_ip The IP Address for which this function should receive packets
+ * \param port_number the port number through which this function should receive packets
  */
-inline void receive_packets(int port_number)
+inline void receive_packets(std::string local_ip, const int port_number)
 {
-	std::string local_ip = "";
-	/*Setup work for retrieving transmission*/
 	//Preliminary setup for winsocket
-	//WSADATA wsa_data;
-	//WSAStartup(MAKEWORD(2, 2), &wsa_data);	////Decision to use MAKEWORD obtained from comment at https://docs.microsoft.com/en-us/windows/desktop/winsock/initializing-winsock
+	WSADATA wsa_data;
+	WSAStartup(MAKEWORD(2, 2), &wsa_data);	////Decision to use MAKEWORD obtained from comment at https://docs.microsoft.com/en-us/windows/desktop/winsock/initializing-winsock
 
 	//Prepare the socket we're binding to
-	int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
+	const int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
 
 	//Read the retrieved packet captures into my FormattedPacket (and data) data structures
 	auto packets = std::vector<FormattedPacket>();
-
-	//sockaddr_in information taken from https://beej.us/guide/bgnet/html/multi/sockaddr_inman.html
 	struct sockaddr_in local_info {};
 	struct sockaddr_in server_info {};
 	local_info.sin_family = AF_INET;
 	local_info.sin_port = htons(port_number);
 	local_info.sin_addr.s_addr = INADDR_ANY;
+
+	//Bind the socket
+	bind(socket_udp, (sockaddr*)&local_info, sizeof(local_info));
+
+	//Await transmission
 	control.lock();
-	{
-		bind(socket_udp, (sockaddr*)&local_info, sizeof(local_info));
-	}
+	std::cout << "Awaiting Transmission over port " << port_number << "...\n";
 	control.unlock();
-	printf("Awaiting Transmission over port %i...\n", port_number);
 	while (true)
 	{
-		control.lock();
+		//Create and clear an array to hold the response
+		char response[1024];
+		std::fill(response, response + sizeof(response), 0);
+
+		//Retrieve responses
+		int server_info_length = sizeof(server_info);
+
+		//If we receive a transmission
+		if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&server_info, &server_info_length) != SOCKET_ERROR)
 		{
-			//Create and clear an array to hold the response
-			char response[1024];
-			std::fill(response, response + sizeof(response), 0);
+			FormattedPacket formattedResponse = FormattedPacket(response);
 
-			//printf("Awaiting Transmission over port %i...\n", port_number);
-
-			/*Retrieve responses*/
-			int serverInfoLength = sizeof(server_info);	//The size of the serverInfo sockaddr_in struct
-			//If we receive a transmission
-			if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&server_info, &serverInfoLength) != SOCKET_ERROR)
+			//If we are the destination IP for the transmission
+			if (local_ip == FormattedPacket::hexadecimal_to_decimalip(formattedResponse.ipHeader.destination))
 			{
 				//Print the transmission and where we got it, then proceed to send an affirming response
-				printf("Transmission from address %s received: %s\n", inet_ntoa(server_info.sin_addr), response);
-				packets.emplace_back(FormattedPacket(response));
-				std::cout << packets[packets.size() - 1] << std::endl;
-				sendto(socket_udp, response, sizeof(response), 0, (sockaddr*)&server_info, serverInfoLength);
+				control.lock();
+				{
+					printf("Transmission from address %s received: %s\n", inet_ntoa(server_info.sin_addr), response);
+					packets.emplace_back(formattedResponse);
+					std::cout << packets[packets.size() - 1] << std::endl;
+				}
+				control.unlock();
+				sendto(socket_udp, response, sizeof(response), 0, (sockaddr*)&server_info, server_info_length);
 			}
 		}
-		control.unlock();
+
 	}
-	closesocket(socket_udp);
 }
 
+/**
+ * \brief Sends a given packet to a provided socket
+ * \param reception_socket The socket to which to send the packet
+ * \param packet The packet to be sent
+ * \return true if the packet is successfully sent; false, otherwise.
+ */
 inline bool send_packet(sockaddr_in reception_socket, FormattedPacket packet)
 {
 	const int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
@@ -80,72 +92,100 @@ inline bool send_packet(sockaddr_in reception_socket, FormattedPacket packet)
 	strcpy(transmissionData, packet.hexData.c_str());
 
 	int serverInfoSize = sizeof(reception_socket);	//The size of the sockaddr_in struct
-	//If we successfully send the packet
-	if (sendto(socket_udp, transmissionData, transmissionSize, 0, (sockaddr*)&reception_socket, serverInfoSize) != SOCKET_ERROR)
-	{
-		//And successfully retrieve the packet
-		if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&reception_socket, &serverInfoSize) != SOCKET_ERROR)
-		{
-			//Then break, allowing for the sending of the next packet.
-			printf("Response received: %s\n", response);
-			return true;
-		}
-	}
-	return false;
+	//If we successfully send the packet, then close the socket and confirm its transmission
+
+	bool sending_success = sendto(socket_udp, transmissionData, transmissionSize, 0, (sockaddr*)&reception_socket, serverInfoSize) != SOCKET_ERROR;
+	closesocket(socket_udp);
+	return sending_success;
+	//if (sending_success)
+	//{
+	//	closesocket(socket_udp);
+	//	////And successfully retrieve the packet
+	//	//if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&reception_socket, &serverInfoSize) != SOCKET_ERROR)
+	//	//{
+	//	//	//Then break, allowing for the sending of the next packet.
+	//	//	printf("Response received: %s\n", response);
+	//	//	return true;
+	//	//}
+	//	return true;
+	//}
+	//closesocket(socket_udp);
+	//return false;
 }
 
-inline void send_packets(const std::string local_ip, const int port_number,  std::vector<std::string> neighbor_ips, std::vector<int> neighbor_ports)
+/**
+ * \brief Sends packets form the provided packet capture location that have the provided local ip address as their origin.
+ * The packets are sent to the sockets specified by the provided neighbor IP addresses and neighbor ports.
+ * \param packet_capture_location The file location of the packet captures to transmit
+ * \param local_ip The local IP address whence transmitted packets should have their labelled origin 
+ * \param neighbor_ips The ip address list portion of the reception sockets
+ * \param neighbor_ports The port list portion of the reception sockets
+ */
+inline void send_packets(const std::string packet_capture_location, const std::string local_ip,
+                         std::vector<std::string> neighbor_ips, std::vector<int> neighbor_ports)
 {
 	//Preliminary setup for winsocket
 	WSADATA wsaData;
-	WSAStartup(MAKEWORD(2, 2), &wsaData);	//Decision to use MAKEWORD obtained from comment at https://docs.microsoft.com/en-us/windows/desktop/winsock/initializing-winsock
-
-	//The sockets we'll bind to
-	
-
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
 	//Read the PCAP packet captures into my FormattedPacket (and data) data structures
-	//std::vector<FormattedPacket> packets = read_packet(
-		//R"(C:\Users\DEMcKnight\source\repos\WinPcapSender\Files\Project1GradedInput.pcap)");
 	std::vector<FormattedPacket> packets = read_packet(
 		R"(C:\Users\DEMcKnight\source\repos\WPD2\WinPCapReciever\Packets\Project2Topo.pcap)");
 
+	int counter = 0;
 	//For each packet, send its contents over the UDP connection
 	for (FormattedPacket packet : packets)
 	{
-		//If the packet's source matches our own
+		counter++;
+		//If the packet's source matches our own, we send it onwards
 		if (FormattedPacket::hexadecimal_to_decimalip(packet.ipHeader.source) == local_ip)
-		{
-			//sockaddr_in information taken from https://beej.us/guide/bgnet/html/multi/sockaddr_inman.html
-			struct sockaddr_in server_info{};
-			server_info.sin_family = AF_INET;
-			server_info.sin_port = htons(port_number);
-			server_info.sin_addr.s_addr = inet_addr("127.3.1.4");
+		{			
 
+			//Send the packet to each of this node's neighbors
 			control.lock();
 			{
-				std::cout << "Sending:..." << std::endl;
-				std::cout << packet << std::endl;
+				std::cout << "Sending packet number" << counter << ":..." << std::endl;
+				for (int i = 0; i < neighbor_ips.size(); i++)
+				{
+					struct sockaddr_in server_info {};
+					server_info.sin_family = AF_INET;
+					server_info.sin_port = htons(neighbor_ports[i]);
+					server_info.sin_addr.s_addr = inet_addr("127.3.1.4");
+					send_packet(server_info, packet);
+					
+				}
 			}
 			control.unlock();
 
-			while (true)
-			{
-				bool success = false;
-				control.lock();
-				{
-					if(send_packet(server_info, packet))
-						success = true;
-				}
-				control.unlock();
 
-				//If the packet sent successfully, break for next packet
-				if (success) 
-					break;
-			}
+			//auto start = std::chrono::steady_clock::now();
+			//int since_printed = 0;
+			//while (true)
+			//{
+			//	//Keeps track of how long we've run to make sure we don't try too many times with this packet
+			//	int time_passed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
+
+			//	//Breaks the loop if the time limit is exceeded
+			//	bool breakLoop = false;
+			//	control.lock();
+			//	{
+			//		//If the packet sent successfully, break for next packet
+			//		if (send_packet(server_info, packet))
+			//		{
+			//			std::cout << "Sending succeeded!" << std::endl;
+			//			breakLoop = true;
+			//		}
+			//		//If we take too long, the sending failed.
+			//		else if (time_passed > 10000)
+			//		{
+			//			std::cout << "Sending failed..." << std::endl;
+			//			breakLoop = true;
+			//		}
+			//	}
+			//	control.unlock();
+			//	if (breakLoop)
+			//		break;
+			//}
 		}
 	}
-
-	//Close the socket now that we're done with it.
-	//closesocket(socket_udp);
 }

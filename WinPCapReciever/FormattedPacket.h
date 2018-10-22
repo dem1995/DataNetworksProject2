@@ -255,7 +255,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const FormattedPacket& dt)
 	{
-		os << dt.ethernetHeader << std::endl;
+		//os << dt.ethernetHeader << std::endl;
 		os << dt.ipHeader << std::endl;
 
 		for (int i = 0; i < dt.hexData.size(); i++)

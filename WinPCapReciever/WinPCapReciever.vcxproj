@@ -248,20 +248,23 @@
   <ItemGroup>
     <ClInclude Include="FormattedPacket.h" />
     <ClInclude Include="PacketReader.h" />
-    <ClInclude Include="SenderMain.h" />
     <ClInclude Include="ThreadFunctions.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Hosts\1.0.txt" />
     <Text Include="Hosts\1.txt" />
     <Text Include="Hosts\10.txt" />
     <Text Include="Hosts\11.txt" />
     <Text Include="Hosts\12.txt" />
     <Text Include="Hosts\13.txt" />
+    <Text Include="Hosts\2.0.txt" />
     <Text Include="Hosts\2.txt" />
+    <Text Include="Hosts\3.0.txt" />
     <Text Include="Hosts\3.txt" />
+    <Text Include="Hosts\4.0.txt" />
     <Text Include="Hosts\4.txt" />
     <Text Include="Hosts\5.txt" />
     <Text Include="Hosts\6.txt" />

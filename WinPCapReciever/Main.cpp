@@ -3,13 +3,26 @@
 #include <iostream>
 #include <fstream>
 #include "ThreadFunctions.h"
-#include "SenderMain.h"
 
 using namespace std;
-
+/**
+ * \brief Main function for Project 3 for Data Structures
+ * \param argc The number of arguments
+ * \param argv The (within the local folder Hosts) location of the text file specifying the local IP and port, as well
+ * as neighbors
+ * \return 0 if all went well, otherwise some other number
+ */
 int main(int argc, char *argv[])
 {	
+	{
+		cout << "Press x, then \"enter\" to begin program flow up through receiving files." << endl;
+		char c;
+		cin >> c;
+	}
+
+	//Parse the network data and the pcap file location from the command parameters
 	ifstream network_data;
+	string pcap_file_location;
 
 	if (argc <= 1)
 		return 1;
@@ -23,6 +36,11 @@ int main(int argc, char *argv[])
 			cout << "Error. Input file not found" << endl;
 			return 1;
 		}
+	}
+
+	if (argc > 2)
+	{
+		string pcap_file_location = (string)argv[2];
 	}
 
 	//Get the local IP address
@@ -67,16 +85,20 @@ int main(int argc, char *argv[])
 		std::cout << neighbor_ips[i] << ": " << neighbor_ports[i] << std::endl;
 	}
 
-	// Create and dispatch the threads for receiving and sending the packets.
-	//main2();
-	//send_packets(local_ip, local_port, neighbor_ips, neighbor_ports);
-	thread packet_sending_thread(send_packets, local_ip, local_port, neighbor_ips, neighbor_ports);
-	thread packet_reception_thread(receive_packets, local_port);
+	//Create and dispatch the thread for receiving packets.
+	thread packet_reception_thread = thread(receive_packets, local_ip, local_port);
+
+
+	// Upon user prompt, create and dispatch the thread for sending packets.
+	{
+		cout << "Press x, then \"enter\" to execute packet sending." << endl;
+		char c;
+		cin >> c;
+	}
+	thread packet_sending_thread = thread(send_packets, pcap_file_location, local_ip, neighbor_ips, neighbor_ports);
+
 	packet_sending_thread.join();
 	packet_reception_thread.join();
-	std::cout << "Press 'x', then 'enter'" << std::endl;
-	std::string s;
-	std::cin >> s;
-	
+	std::cout << "Exiting the program..." << std::endl;
 	return 0;
 }

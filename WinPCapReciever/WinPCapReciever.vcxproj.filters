@@ -24,9 +24,6 @@
     <ClInclude Include="FormattedPacket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SenderMain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -47,6 +44,10 @@
     <Text Include="Hosts\11.txt" />
     <Text Include="Hosts\12.txt" />
     <Text Include="Hosts\13.txt" />
+    <Text Include="Hosts\1.0.txt" />
+    <Text Include="Hosts\2.0.txt" />
+    <Text Include="Hosts\3.0.txt" />
+    <Text Include="Hosts\4.0.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Packets\Project2Topo.pcap" />
