@@ -1,9 +1,9 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
-#include <pcap.h>
 #include <vector>
 #include <cstdio>
+#include <pcap.h>
 #include "FormattedPacket.h"
 
 inline std::vector<FormattedPacket> read_packet(std::string file)

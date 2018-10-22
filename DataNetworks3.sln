@@ -3,16 +3,46 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinPCapReciever", "WinPCapReciever\WinPCapReciever.vcxproj", "{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataNetworks3", "WinPCapReciever\WinPCapReciever.vcxproj", "{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Args1|x64 = Args1|x64
+		Args1|x86 = Args1|x86
+		Args2|x64 = Args2|x64
+		Args2|x86 = Args2|x86
+		Args3|x64 = Args3|x64
+		Args3|x86 = Args3|x86
+		Args4|x64 = Args4|x64
+		Args4|x86 = Args4|x86
+		Args5|x64 = Args5|x64
+		Args5|x86 = Args5|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args1|x64.ActiveCfg = Args1|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args1|x64.Build.0 = Args1|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args1|x86.ActiveCfg = Args1|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args1|x86.Build.0 = Args1|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args2|x64.ActiveCfg = Args2|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args2|x64.Build.0 = Args2|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args2|x86.ActiveCfg = Args2|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args2|x86.Build.0 = Args2|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args3|x64.ActiveCfg = Args3|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args3|x64.Build.0 = Args3|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args3|x86.ActiveCfg = Args3|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args3|x86.Build.0 = Args3|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args4|x64.ActiveCfg = Args4|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args4|x64.Build.0 = Args4|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args4|x86.ActiveCfg = Args4|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args4|x86.Build.0 = Args4|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args5|x64.ActiveCfg = Args5|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args5|x64.Build.0 = Args5|x64
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args5|x86.ActiveCfg = Args5|Win32
+		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Args5|x86.Build.0 = Args5|Win32
 		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Debug|x64.ActiveCfg = Debug|x64
 		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Debug|x64.Build.0 = Debug|x64
 		{3C3019B6-8FA5-4767-A0D6-B2643E6ED11C}.Debug|x86.ActiveCfg = Debug|Win32

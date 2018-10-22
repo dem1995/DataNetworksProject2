@@ -194,7 +194,7 @@ public:
 			hexData.append(formattedDataBuffer);
 		}
 
-		ethernetHeader = { hexData.substr(0,12), hexData.substr(12, 12), hexData.substr(24, 4), hexData.size() };
+		ethernetHeader = { hexData.substr(0,12), hexData.substr(12, 12), hexData.substr(24, 4), hexData.size()/2 };
 		ipHeader = IPHeader();
 		ipHeader.ipVersion = hexData.substr(28, 1);
 		ipHeader.ipHeaderLength = hexData.substr(29, 1);

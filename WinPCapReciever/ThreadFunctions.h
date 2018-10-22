@@ -18,8 +18,8 @@ inline void receive_packets(int port_number)
 	std::string local_ip = "";
 	/*Setup work for retrieving transmission*/
 	//Preliminary setup for winsocket
-	WSADATA wsa_data;
-	WSAStartup(MAKEWORD(2, 2), &wsa_data);	////Decision to use MAKEWORD obtained from comment at https://docs.microsoft.com/en-us/windows/desktop/winsock/initializing-winsock
+	//WSADATA wsa_data;
+	//WSAStartup(MAKEWORD(2, 2), &wsa_data);	////Decision to use MAKEWORD obtained from comment at https://docs.microsoft.com/en-us/windows/desktop/winsock/initializing-winsock
 
 	//Prepare the socket we're binding to
 	int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
@@ -62,29 +62,51 @@ inline void receive_packets(int port_number)
 			}
 		}
 		control.unlock();
-		std::this_thread::sleep_for(std::chrono::microseconds(1));
 	}
 	closesocket(socket_udp);
 }
 
-
-
-inline void send_packets(int port_number)
+inline bool send_packet(sockaddr_in reception_socket, FormattedPacket packet)
 {
-	std::string local_ip = "";
+	const int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
 
-	
+	//Prepare an array to retrieve the response
+	char response[1024];
+	std::fill(response, response + sizeof(response), 0);
+
+	//Decide upon the choice of transmission and the transmission size
+	const int transmissionSize = packet.hexData.size();
+	char* transmissionData = new char[transmissionSize + 1];
+	strcpy(transmissionData, packet.hexData.c_str());
+
+	int serverInfoSize = sizeof(reception_socket);	//The size of the sockaddr_in struct
+	//If we successfully send the packet
+	if (sendto(socket_udp, transmissionData, transmissionSize, 0, (sockaddr*)&reception_socket, serverInfoSize) != SOCKET_ERROR)
+	{
+		//And successfully retrieve the packet
+		if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&reception_socket, &serverInfoSize) != SOCKET_ERROR)
+		{
+			//Then break, allowing for the sending of the next packet.
+			printf("Response received: %s\n", response);
+			return true;
+		}
+	}
+	return false;
+}
+
+inline void send_packets(const std::string local_ip, const int port_number,  std::vector<std::string> neighbor_ips, std::vector<int> neighbor_ports)
+{
 	//Preliminary setup for winsocket
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);	//Decision to use MAKEWORD obtained from comment at https://docs.microsoft.com/en-us/windows/desktop/winsock/initializing-winsock
 
-	//The socket we'll bind to
-	const int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
+	//The sockets we'll bind to
+	
+
 
 	//Read the PCAP packet captures into my FormattedPacket (and data) data structures
 	std::vector<FormattedPacket> packets = read_packet(
 		R"(C:\Users\DEMcKnight\source\repos\WinPcapSender\Files\Project1GradedInput.pcap)");
-	
 
 	//For each packet, send its contents over the UDP connection
 	for (FormattedPacket packet : packets)
@@ -93,10 +115,10 @@ inline void send_packets(int port_number)
 		//if (packet.ipHeader.source == local_ip)
 		{
 			//sockaddr_in information taken from https://beej.us/guide/bgnet/html/multi/sockaddr_inman.html
-			struct sockaddr_in serverInfo{};
-			serverInfo.sin_family = AF_INET;
-			serverInfo.sin_port = htons(port_number);
-			serverInfo.sin_addr.s_addr = inet_addr("127.3.1.4");
+			struct sockaddr_in server_info{};
+			server_info.sin_family = AF_INET;
+			server_info.sin_port = htons(443);
+			server_info.sin_addr.s_addr = inet_addr("127.3.1.4");
 
 			control.lock();
 			{
@@ -107,32 +129,17 @@ inline void send_packets(int port_number)
 
 			while (true)
 			{
+				bool success = false;
 				control.lock();
 				{
-					//Prepare an array to retrieve the response
-					char response[1024];
-					std::fill(response, response + sizeof(response), 0);
-
-					//Decide upon the choice of transmission and the transmission size
-					const int transmissionSize = packet.hexData.size();
-					char* transmissionData = new char[transmissionSize + 1];
-					strcpy(transmissionData, packet.hexData.c_str());
-
-					int serverInfoSize = sizeof(serverInfo);	//The size of the sockaddr_in struct
-					//If we successfully send the packet
-					if (sendto(socket_udp, transmissionData, transmissionSize, 0, (sockaddr*)&serverInfo, serverInfoSize) != SOCKET_ERROR)
-					{
-						//And successfully retrieve the packet
-						if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&serverInfo, &serverInfoSize) != SOCKET_ERROR)
-						{
-							//Then break, allowing for the sending of the next packet.
-							printf("Response received: %s\n", response);
-							break;
-						}
-					}
+					if(send_packet(server_info, packet))
+						success = true;
 				}
 				control.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+				//If the packet sent successfully, break for next packet
+				if (success) 
+					break;
 			}
 		}
 	}
