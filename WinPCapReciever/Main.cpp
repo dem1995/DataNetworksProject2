@@ -3,8 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include "ThreadFunctions.h"
-
 using namespace std;
+
 /**
  * \brief Main function for Project 3 for Data Structures
  * \param argc The number of arguments
@@ -14,6 +14,7 @@ using namespace std;
  */
 int main(int argc, char *argv[])
 {	
+	//Prompt the user for input to provide a "pause" prior to setting things up and beginning to receive files (to satisfy assignment specs)
 	{
 		cout << "Press x, then \"enter\" to begin program flow up through receiving files." << endl;
 		char c;
