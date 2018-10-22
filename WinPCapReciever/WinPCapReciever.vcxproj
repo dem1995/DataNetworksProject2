@@ -144,6 +144,9 @@
     <Text Include="Hosts\8.txt" />
     <Text Include="Hosts\9.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Packets\Project2Topo.pcap" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

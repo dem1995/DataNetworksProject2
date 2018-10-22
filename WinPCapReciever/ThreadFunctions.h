@@ -2,22 +2,20 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <string>
 #include <vector>
-#include <windows.h>
 #include <winsock2.h>
 #include "FormattedPacket.h"
 #include "PacketReader.h"
 #include <mutex>
 
-
 std::mutex control;
-
 
 /**
  * \brief Function to receive packets set to the provided IP Address
  * \param local_ip The IP Address for which this function should receive packets
  */
-inline void receive_packets(std::string local_ip, int port_number)
+inline void receive_packets(int port_number)
 {
+	std::string local_ip = "";
 	/*Setup work for retrieving transmission*/
 	//Preliminary setup for winsocket
 	WSADATA wsa_data;
@@ -71,9 +69,9 @@ inline void receive_packets(std::string local_ip, int port_number)
 
 
 
-inline void send_packets(std::string local_ip, int port_number)
+inline void send_packets(int port_number)
 {
-
+	std::string local_ip = "";
 
 	
 	//Preliminary setup for winsocket
@@ -95,7 +93,7 @@ inline void send_packets(std::string local_ip, int port_number)
 		//if (packet.ipHeader.source == local_ip)
 		{
 			//sockaddr_in information taken from https://beej.us/guide/bgnet/html/multi/sockaddr_inman.html
-			struct sockaddr_in serverInfo;
+			struct sockaddr_in serverInfo{};
 			serverInfo.sin_family = AF_INET;
 			serverInfo.sin_port = htons(port_number);
 			serverInfo.sin_addr.s_addr = inet_addr("127.3.1.4");
@@ -140,5 +138,5 @@ inline void send_packets(std::string local_ip, int port_number)
 	}
 
 	//Close the socket now that we're done with it.
-	closesocket(socket_udp);
+	//closesocket(socket_udp);
 }

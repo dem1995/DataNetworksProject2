@@ -130,7 +130,7 @@ public:
 
 			for (int i = 31; i >= 0; i--)
 			{
-				if ((mask >> i) & 0x01 == 1)
+				if (((mask >> i) & 0x01) == 1)
 				{
 					returnString += std::to_string(((masked >> i) & 0x01));
 				}

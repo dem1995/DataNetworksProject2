@@ -45,4 +45,7 @@
     <Text Include="Hosts\12.txt" />
     <Text Include="Hosts\13.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Packets\Project2Topo.pcap" />
+  </ItemGroup>
 </Project>

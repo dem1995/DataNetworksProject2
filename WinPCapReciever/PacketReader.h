@@ -37,8 +37,8 @@ inline std::vector<FormattedPacket> read_packet(std::string file)
 				printf("Warning! Capture size different than packet size: %ld bytes\n", header->len);
 
 			//Reset the formatted string of data and formatted vector of data
-			std::string formatted = "";
-			std::vector<unsigned char> packetData = std::vector<unsigned char>();
+			std::string formatted;
+			auto packetData = std::vector<unsigned char>();
 
 
 			// loop through the packet and print it as hexadecimal representations of octets
