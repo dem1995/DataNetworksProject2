@@ -16,7 +16,7 @@ static std::mutex control;
  * \param local_ip The IP Address for which this function should receive packets
  * \param port_number the port number through which this function should receive packets
  */
-inline void receive_packets(std::string local_ip, const int port_number)
+inline void receive_packets(const std::string local_ip, const int port_number)
 {
 	//Preliminary setup for winsocket
 	WSADATA wsa_data;
@@ -26,7 +26,7 @@ inline void receive_packets(std::string local_ip, const int port_number)
 	const int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
 
 	//Read the retrieved packet captures into my FormattedPacket (and data) data structures
-	auto packets = std::vector<FormattedPacket>();
+	auto packets = std::vector<formatted_packet>();
 	struct sockaddr_in local_info {};
 	struct sockaddr_in server_info {};
 	local_info.sin_family = AF_INET;
@@ -52,10 +52,10 @@ inline void receive_packets(std::string local_ip, const int port_number)
 		//If we receive a transmission
 		if (recvfrom(socket_udp, response, sizeof(response), 0, (sockaddr*)&server_info, &server_info_length) != SOCKET_ERROR)
 		{
-			FormattedPacket formattedResponse = FormattedPacket(response);
+			formatted_packet formattedResponse = formatted_packet(response);
 
 			//If we are the destination IP for the transmission
-			if (local_ip == FormattedPacket::hexadecimal_to_decimalip(formattedResponse.ipHeader.destination))
+			if (local_ip == formatted_packet::hexadecimal_to_decimal_ip(formattedResponse.ip_header.destination))
 			{
 				//Print the transmission and where we got it, then proceed to send an affirming response
 				control.lock();
@@ -78,7 +78,7 @@ inline void receive_packets(std::string local_ip, const int port_number)
  * \param packet The packet to be sent
  * \return true if the packet is successfully sent; false, otherwise.
  */
-inline bool send_packet(sockaddr_in reception_socket, FormattedPacket packet)
+inline bool send_packet(sockaddr_in reception_socket, formatted_packet packet)
 {
 	const int socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -129,16 +129,18 @@ inline void send_packets(const std::string packet_capture_location, const std::s
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
 	//Read the PCAP packet captures into my FormattedPacket (and data) data structures
-	std::vector<FormattedPacket> packets = read_packet(
-		R"(C:\Users\DEMcKnight\source\repos\WPD2\WinPCapReciever\Packets\Project2Topo.pcap)");
+	std::vector<formatted_packet> packets = read_packet(packet_capture_location);
+
+	//	std::vector<formatted_packet> packets = read_packet(
+	//R"(C:\Users\DEMcKnight\source\repos\WPD2\WinPCapReciever\Packets\Project2Topo.pcap)");
 
 	int counter = 0;
 	//For each packet, send its contents over the UDP connection
-	for (FormattedPacket packet : packets)
+	for (formatted_packet packet : packets)
 	{
 		counter++;
 		//If the packet's source matches our own, we send it onwards
-		if (FormattedPacket::hexadecimal_to_decimalip(packet.ipHeader.source) == local_ip)
+		if (formatted_packet::hexadecimal_to_decimal_ip(packet.ip_header.source) == local_ip)
 		{			
 
 			//Send the packet to each of this node's neighbors

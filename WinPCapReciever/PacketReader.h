@@ -12,11 +12,11 @@
  * \param file The file location of the capture file.
  * \return A vector of FormattedPackets formed from packet capture file at the provided location.
  */
-inline std::vector<FormattedPacket> read_packet(const std::string& file)
+inline std::vector<formatted_packet> read_packet(const std::string& file)
 	{
 
 		// FormattedHeaders to be populated from the packets residing in the given capture file
-		std::vector<FormattedPacket> formatted_headers;
+		std::vector<formatted_packet> formatted_headers;
 
 		// Error buffer
 		char errbuff[PCAP_ERRBUF_SIZE];
@@ -36,7 +36,7 @@ inline std::vector<FormattedPacket> read_packet(const std::string& file)
 
 			//Reset the formatted string of data and formatted vector of data
 			std::string formatted;
-			auto packetData = std::vector<unsigned char>();
+			auto packet_data = std::vector<unsigned char>();
 
 			// Loop through the packet and print it as hexadecimal representations of octets
 			for (u_int i = 0; i < header->caplen; i++)
@@ -45,11 +45,11 @@ inline std::vector<FormattedPacket> read_packet(const std::string& file)
 				char* formattedDataBuffer = new char[2];
 				sprintf(formattedDataBuffer, "%.2x", data[i]);
 				formatted.append(formattedDataBuffer);
-				packetData.emplace_back(data[i]);
+				packet_data.emplace_back(data[i]);
 			}
 
 			//Format the packet data based on the hex data and put it into the return vector
-			formatted_headers.emplace_back(FormattedPacket(packetData));
+			formatted_headers.emplace_back(formatted_packet(packet_data));
 		}
 		return formatted_headers;
 };

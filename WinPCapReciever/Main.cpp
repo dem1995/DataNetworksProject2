@@ -26,8 +26,9 @@ int main(int argc, char *argv[])
 	string pcap_file_location;
 
 	if (argc <= 1)
+	{
 		return 1;
-
+	}
 	if (argc > 1)
 	{
 		//Parse the text file
@@ -38,10 +39,10 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
-
 	if (argc > 2)
 	{
-		string pcap_file_location = (string)argv[2];
+		//Determine the packet capture file location
+		pcap_file_location = (string)argv[2];
 	}
 
 	//Get the local IP address
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
 	network_data >> local_port;
 	cout << "The local port is " << local_port << std::endl;
 
-
+	//Grab the node's adjacent neighbors
 	int num_neighbors;
 	network_data >> num_neighbors;
 	cout << "The number of neighbors is " << num_neighbors << std::endl;
